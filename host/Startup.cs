@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using IdentityServer4;
 using IdentityServer4.Quickstart.UI;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Host
 {
@@ -40,8 +41,8 @@ namespace Host
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                 })
-                .AddInMemoryClients(Clients.Get())
-                //.AddInMemoryClients(_config.GetSection("Clients"))
+                //.AddInMemoryClients(Clients.Get())
+                .AddInMemoryClients(_config.GetSection("Clients"))
                 .AddInMemoryIdentityResources(Resources.GetIdentityResources())
                 .AddInMemoryApiResources(Resources.GetApiResources())
                 .AddDeveloperSigningCredential()
@@ -80,8 +81,8 @@ namespace Host
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
 
-                    options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
-                    options.ClientSecret = "wdfPY6t8H8cecgjlxud__4Gh";
+                    options.ClientId = "280725343054-ogvgkd054gf4fr94d3tqtg5ibgf1718g.apps.googleusercontent.com";
+                    options.ClientSecret = "hizwjhNlJI12ZirAfoeJFNML";
                 })
                 .AddOpenIdConnect("demoidsrv", "IdentityServer", options =>
                 {
@@ -150,7 +151,29 @@ namespace Host
                         NameClaimType = "name",
                         RoleClaimType = "role"
                     };
+                })
+                .AddOpenIdConnect("octa", "Octa", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+
+                    options.Authority = "https://dev-731148.okta.com";
+                    options.ClientId = "0oa9v520qlcs9rdHD356";
+                    options.ResponseType = OpenIdConnectResponseType.Code;// "id_token";
+                    options.ClientSecret = "GqThUXkIF9wNHIkNcr8eYj4dHCeE6fn14jtj-tK9";
+                    options.SaveTokens = true;
+                    options.GetClaimsFromUserInfoEndpoint = true;
+                    options.CallbackPath = "/authorization-code/callback";
+                    options.SignedOutCallbackPath = "/signout/callback";
+                    //options.RemoteSignOutPath = "/signout-idsrv";
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+
+                    {
+                        ValidateIssuer = true
+                    };
                 });
+               
 
             return services;
         }
